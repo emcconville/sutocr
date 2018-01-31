@@ -7,6 +7,10 @@ class Leptronica(Library):
                  default='liblept.so'):
         Library.__init__(self, key, default)
 
+    def pixRead(self, filename=None):
+        if filename:
+            return self.resource.pixRead(filename)
+
     def cdefs(self):
         self.resource.pixRead.argtypes = (c_char_p, )
         self.resource.pixRead.restype = c_void_p
