@@ -1,37 +1,46 @@
 from ctypes import c_char_p, c_int, c_void_p
 from .library import Library
 
+DEFAULT_TESSERACT="""
+libtesseract.so;
+liblibtesseract.dylib;
+/usr/local/lib/liblibtesseract.dylib;
+"""
+
 class TessBaseAPI(Library):
     def __init__(self,
                  key='SUTOCR_TESSERACT',
-                 default='libtesseract.so'):
+                 default=DEFAULT_TESSERACT):
         Library.__init__(self, key, default)
-        self.api = self.resource.TessBaseAPICreate()
+        if self.resource:
+            self.api = self.resource.TessBaseAPICreate()
 
     def __del__(self):
-        self.resource.TessBaseAPIDelete(self.api)
+        if self.resource:
+            self.resource.TessBaseAPIDelete(self.api)
 
     def init(self, prop=None, lang='eng'):
         state = self.resource.TessBaseAPIInit3(self.api,
                                                prop,
-                                               lang)
+                                               lang.encode())
         return state
 
     @property
     def image(self):
         return None # TODO
     @image.setter
-    def set_image(self, pix):
+    def image(self, pix):
         self.resource.TessBaseAPISetImage2(self.api, pix)
 
     @property
     def utf8_text(self):
-        response = self.resource.TessBaseAPIGetUTF8Text(self.api)
+        return self.resource.TessBaseAPIGetUTF8Text(self.api)
 
     def end(self):
         self.resource.TessBaseAPIEnd(self.api)
 
     def cdefs(self):
+        self.resource.TessDeleteText.argtypes = (c_char_p, )
         self.resource.TessBaseAPICreate.restype = c_void_p
         self.resource.TessBaseAPIDelete.argtypes = (c_void_p, )
         self.resource.TessBaseAPIInit3.argtypes = (c_void_p,

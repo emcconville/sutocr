@@ -6,6 +6,7 @@ __all__ = ('Library',)
 
 class Library(object):
     def __init__(self, key=None, default=None):
+        self.resource = None
         if key:
             self.find_lib(key, default)
         if self.resource:
@@ -15,7 +16,7 @@ class Library(object):
         candidates = getenv(key, default).strip()
         for candidate in candidates.split(';'):
             try:
-                self.resource = ctypes.cdll.LoadLibrary(candidate)
+                self.resource = ctypes.cdll.LoadLibrary(candidate.strip())
             except (IOError, OSError):
                 continue
             return self.resource
