@@ -11,7 +11,7 @@ def image_to_text(filepath):
     tess.init()
     pix = lept.pixRead(filepath)
     if not pix:
-        raise ValueError('Unable to open image `{0}\''.format(image))
+        raise ValueError('Unable to open image `{0}\''.format(filepath))
     tess.image = pix
     results = tess.utf8_text
     lept.pixDestroy(pix)
