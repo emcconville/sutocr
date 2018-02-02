@@ -4,6 +4,7 @@ import ctypes
 
 __all__ = ('Library',)
 
+
 class Library(object):
     def __init__(self, key=None, default=None):
         self.resource = None
