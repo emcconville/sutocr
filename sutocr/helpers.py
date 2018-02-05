@@ -1,3 +1,17 @@
+"""
+Shut UP & Tesseract OCR -- :mod:``sutocr.helpers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A collection of simple functions to process documents with Tesseract OCR.
+
+.. module:: sutocr.helpers
+   :platform: Unix, macOS
+   :synopsis: A no-thrill, featureless, Tesseract wrapper to convert PDF
+              documents to text.
+
+.. moduleauthor:: E. McConville <emcconville@emcconville.com>
+
+"""
 from os import path
 from glob import glob
 from tempfile import TemporaryDirectory
@@ -5,8 +19,28 @@ from subprocess import Popen, PIPE
 from sutocr.cdefs.leptonica import Leptonica
 from sutocr.cdefs.tesseract import TessBaseAPI
 
+__all__ = ('image_to_text', 'pdf_to_text')
+
 
 def image_to_text(filepath):
+    """
+    Evaluate ``filepath`` image, and attempt to extract text.
+
+    Will return an empty string, or ``None``, if no characters were detected.
+    Any library warnings, or errors, will be written to stderr.
+
+    :param filepath: Real path of image to process with Tesseract-OCR.
+                     The image's format must be supported by Leptonica library.
+    :type filepath: :class:`str`
+    :raises RuntimeError: if Tesseract library can not be initialized. This
+                          usually occurs when train-data / language libraries
+                          can not be loaded.
+    :raises ValueError: if Leptonica can not process image. Either because the
+                        ``filepath`` is not readable, or that the format is not
+                        supported by library.
+    :return: Characters detected within given image.
+    :rtype: :class:`str`
+    """
     lept = Leptonica()
     tess = TessBaseAPI()
     if tess.init():
@@ -22,6 +56,13 @@ def image_to_text(filepath):
 
 
 def pdf_to_text(filepath, *args, **kwargs):
+    """Extract raster pages from a PDF document with Ghostscript, and pass
+    to ``image_to_text`` function.
+
+    :param filepath: Real path of document location.
+    :type filepath: :class:`str`
+    :rtype: Iterator[:class:`str`]
+    """
     gs_args = [
         kwargs.get('binary', 'gs'),
         '-sstdout=%stderr',
